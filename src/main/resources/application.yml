@@ -1,3 +1,5 @@
 spring:
   application:
     name: rudy-blog
+server:
+  port: 8082
