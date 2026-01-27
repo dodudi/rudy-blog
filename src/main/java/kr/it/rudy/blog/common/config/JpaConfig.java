@@ -1,4 +1,4 @@
-package kr.it.rudy.blog.config;
+package kr.it.rudy.blog.common.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

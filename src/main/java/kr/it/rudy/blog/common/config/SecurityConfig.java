@@ -1,4 +1,4 @@
-package kr.it.rudy.blog.config;
+package kr.it.rudy.blog.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +31,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> {})
+                        .jwt(jwt -> {
+                        })
                 );
 
         return http.build();
