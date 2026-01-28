@@ -1,9 +1,14 @@
 package kr.it.rudy.blog.post.domain;
 
+import kr.it.rudy.blog.category.domain.CategoryId;
+import kr.it.rudy.blog.tag.domain.TagId;
 import lombok.Getter;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Post Aggregate Root
@@ -13,19 +18,27 @@ public class Post {
     private final PostId id;
     private String title;
     private String content;
+    private String summary;
     private final String author;
     private PostStatus status;
-    private Instant createdAt;
-    private Instant updatedAt;
+    private CategoryId categoryId;
+    private Set<TagId> tagIds;
+    private Instant createdDt;
+    private Instant updatedDt;
 
-    private Post(PostId id, String title, String content, String author, PostStatus status, Instant createdAt, Instant updatedAt) {
+    private Post(PostId id, String title, String content, String summary, String author,
+                 PostStatus status, CategoryId categoryId, Set<TagId> tagIds,
+                 Instant createdDt, Instant updatedDt) {
         this.id = id;
         this.title = title;
         this.content = content;
+        this.summary = summary;
         this.author = author;
         this.status = status;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.categoryId = categoryId;
+        this.tagIds = tagIds != null ? new HashSet<>(tagIds) : new HashSet<>();
+        this.createdDt = createdDt;
+        this.updatedDt = updatedDt;
     }
 
     public static Post create(String title, String content, String author) {
@@ -37,8 +50,32 @@ public class Post {
                 PostId.generate(),
                 title,
                 content,
+                null,
                 author,
                 PostStatus.DRAFT,
+                null,
+                new HashSet<>(),
+                null,
+                null
+        );
+    }
+
+    public static Post create(String title, String content, String summary, String author,
+                              CategoryId categoryId, Set<TagId> tagIds) {
+        validateTitle(title);
+        validateContent(content);
+        validateAuthor(author);
+        validateSummary(summary);
+
+        return new Post(
+                PostId.generate(),
+                title,
+                content,
+                summary,
+                author,
+                PostStatus.DRAFT,
+                categoryId,
+                tagIds,
                 null,
                 null
         );
@@ -46,7 +83,13 @@ public class Post {
 
     public static Post reconstitute(PostId id, String title, String content, String author,
                                     PostStatus status, Instant createdAt, Instant updatedAt) {
-        return new Post(id, title, content, author, status, createdAt, updatedAt);
+        return new Post(id, title, content, null, author, status, null, new HashSet<>(), createdAt, updatedAt);
+    }
+
+    public static Post reconstitute(PostId id, String title, String content, String summary, String author,
+                                    PostStatus status, CategoryId categoryId, Set<TagId> tagIds,
+                                    Instant createdAt, Instant updatedAt) {
+        return new Post(id, title, content, summary, author, status, categoryId, tagIds, createdAt, updatedAt);
     }
 
     public void updateTitle(String title) {
@@ -57,6 +100,23 @@ public class Post {
     public void updateContent(String content) {
         validateContent(content);
         this.content = content;
+    }
+
+    public void updateSummary(String summary) {
+        validateSummary(summary);
+        this.summary = summary;
+    }
+
+    public void updateCategory(CategoryId categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public void updateTags(Set<TagId> tagIds) {
+        this.tagIds = tagIds != null ? new HashSet<>(tagIds) : new HashSet<>();
+    }
+
+    public Set<TagId> getTagIds() {
+        return Collections.unmodifiableSet(tagIds);
     }
 
     public void publish() {
@@ -91,6 +151,12 @@ public class Post {
     private static void validateAuthor(String author) {
         if (author == null || author.isBlank()) {
             throw new IllegalArgumentException("Author cannot be null or empty");
+        }
+    }
+
+    private static void validateSummary(String summary) {
+        if (summary != null && summary.length() > 300) {
+            throw new IllegalArgumentException("Summary cannot exceed 300 characters");
         }
     }
 

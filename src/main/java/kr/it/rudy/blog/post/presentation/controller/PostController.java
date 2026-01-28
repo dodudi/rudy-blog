@@ -38,12 +38,18 @@ public class PostController {
     @GetMapping
     public ResponseEntity<List<PostResponse>> getAllPosts(
             @RequestParam(required = false) PostStatus status,
-            @RequestParam(required = false) String author
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String categorySlug,
+            @RequestParam(required = false) String tagSlug
     ) {
         List<PostResponse> responses;
-        if (status != null) {
+        if (categorySlug != null && !categorySlug.isBlank()) {
+            responses = postService.getPostsByCategorySlug(categorySlug);
+        } else if (tagSlug != null && !tagSlug.isBlank()) {
+            responses = postService.getPostsByTagSlug(tagSlug);
+        } else if (status != null) {
             responses = postService.getPostsByStatus(status);
-        } else if (author != null) {
+        } else if (author != null && !author.isBlank()) {
             responses = postService.getPostsByAuthor(author);
         } else {
             responses = postService.getAllPosts();

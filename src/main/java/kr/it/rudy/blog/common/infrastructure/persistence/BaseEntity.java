@@ -1,4 +1,4 @@
-package kr.it.rudy.blog.post.infrastructure.persistence;
+package kr.it.rudy.blog.common.infrastructure.persistence;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -15,8 +15,12 @@ import java.time.Instant;
 public class BaseEntity {
 
     @CreatedDate
-    private Instant createdAt;
+    private Instant createdDt;
 
     @LastModifiedDate
-    private Instant updatedAt;
+    private Instant updatedDt;
+
+    public void setCreatedDt(Instant createdDt) {
+        this.createdDt = createdDt;
+    }
 }
