@@ -32,3 +32,18 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: -1ms
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
