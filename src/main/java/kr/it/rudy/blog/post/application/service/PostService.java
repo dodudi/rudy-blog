@@ -144,6 +144,12 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    public List<PostResponse> getPostsByAuthorAndStatus(String author, PostStatus status) {
+        return postRepository.findByAuthorAndStatus(author, status).stream()
+                .map(this::toPostResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<PostResponse> getPostsByCategoryId(String categoryId) {
         return postRepository.findByCategoryId(CategoryId.of(categoryId)).stream()
                 .map(this::toPostResponse)

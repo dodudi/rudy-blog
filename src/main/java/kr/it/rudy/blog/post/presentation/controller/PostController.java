@@ -47,10 +47,13 @@ public class PostController {
             responses = postService.getPostsByCategorySlug(categorySlug);
         } else if (tagSlug != null && !tagSlug.isBlank()) {
             responses = postService.getPostsByTagSlug(tagSlug);
-        } else if (status != null) {
-            responses = postService.getPostsByStatus(status);
+        } else if (author != null && !author.isBlank() && status != null) {
+            // author와 status 둘 다 있는 경우
+            responses = postService.getPostsByAuthorAndStatus(author, status);
         } else if (author != null && !author.isBlank()) {
             responses = postService.getPostsByAuthor(author);
+        } else if (status != null) {
+            responses = postService.getPostsByStatus(status);
         } else {
             responses = postService.getAllPosts();
         }

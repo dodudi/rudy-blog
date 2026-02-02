@@ -20,6 +20,8 @@ public interface PostRepository {
 
     List<Post> findByAuthor(String author);
 
+    List<Post> findByAuthorAndStatus(String author, PostStatus status);
+
     List<Post> findByCategoryId(CategoryId categoryId);
 
     List<Post> findByTagId(TagId tagId);

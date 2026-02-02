@@ -65,6 +65,13 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
+    public List<Post> findByAuthorAndStatus(String author, PostStatus status) {
+        return jpaRepository.findByAuthorAndStatus(author, status).stream()
+                .map(PostJpaEntity::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Post> findByCategoryId(CategoryId categoryId) {
         return jpaRepository.findByCategoryId(categoryId.getValue()).stream()
                 .map(PostJpaEntity::toDomain)

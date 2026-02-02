@@ -13,6 +13,8 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, String> 
 
     List<PostJpaEntity> findByAuthor(String author);
 
+    List<PostJpaEntity> findByAuthorAndStatus(String author, PostStatus status);
+
     List<PostJpaEntity> findByCategoryId(String categoryId);
 
     @Query("SELECT p FROM PostJpaEntity p WHERE :tagId MEMBER OF p.tagIds")
