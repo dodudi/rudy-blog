@@ -59,6 +59,12 @@ public class PostService {
                 categoryId,
                 tagIds
         );
+
+        // publish 플래그가 true이면 바로 게시
+        if (Boolean.TRUE.equals(request.publish())) {
+            post.publish();
+        }
+
         Post saved = postRepository.save(post);
         return toPostResponse(saved);
     }
@@ -87,6 +93,13 @@ public class PostService {
                     .map(TagId::of)
                     .collect(Collectors.toSet());
             post.updateTags(tagIds);
+        }
+
+        // publish 플래그에 따라 상태 변경
+        if (Boolean.TRUE.equals(request.publish()) && post.getStatus() == PostStatus.DRAFT) {
+            post.publish();
+        } else if (Boolean.FALSE.equals(request.publish()) && post.getStatus() == PostStatus.PUBLISHED) {
+            post.unpublish();
         }
 
         Post updated = postRepository.update(post);

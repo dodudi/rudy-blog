@@ -21,6 +21,8 @@ public record UpdatePostRequest(
 
     String categoryId,
 
-    Set<String> tagIds
+    Set<String> tagIds,
+
+    Boolean publish
 ) {
 }

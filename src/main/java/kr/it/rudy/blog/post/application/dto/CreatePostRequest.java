@@ -24,6 +24,8 @@ public record CreatePostRequest(
 
     String categoryId,
 
-    Set<String> tagIds
+    Set<String> tagIds,
+
+    Boolean publish
 ) {
 }
