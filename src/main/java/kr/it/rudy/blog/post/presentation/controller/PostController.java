@@ -3,9 +3,9 @@ package kr.it.rudy.blog.post.presentation.controller;
 import jakarta.validation.Valid;
 import kr.it.rudy.blog.post.application.dto.CreatePostRequest;
 import kr.it.rudy.blog.post.application.dto.PostResponse;
+import kr.it.rudy.blog.post.application.dto.SearchPostRequest;
 import kr.it.rudy.blog.post.application.dto.UpdatePostRequest;
 import kr.it.rudy.blog.post.application.service.PostService;
-import kr.it.rudy.blog.post.domain.PostStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,23 +37,20 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<List<PostResponse>> getAllPosts(
-            @RequestParam(required = false) PostStatus status,
-            @RequestParam(required = false) String author,
-            @RequestParam(required = false) String categorySlug,
-            @RequestParam(required = false) String tagSlug
+            @ModelAttribute SearchPostRequest request
     ) {
         List<PostResponse> responses;
-        if (categorySlug != null && !categorySlug.isBlank()) {
-            responses = postService.getPostsByCategorySlug(categorySlug);
-        } else if (tagSlug != null && !tagSlug.isBlank()) {
-            responses = postService.getPostsByTagSlug(tagSlug);
-        } else if (author != null && !author.isBlank() && status != null) {
+        if (request.categorySlug() != null && !request.categorySlug().isBlank()) {
+            responses = postService.getPostsByCategorySlug(request.categorySlug());
+        } else if (request.tagSlug() != null && !request.tagSlug().isBlank()) {
+            responses = postService.getPostsByTagSlug(request.tagSlug());
+        } else if (request.author() != null && !request.author().isBlank() && request.status() != null) {
             // author와 status 둘 다 있는 경우
-            responses = postService.getPostsByAuthorAndStatus(author, status);
-        } else if (author != null && !author.isBlank()) {
-            responses = postService.getPostsByAuthor(author);
-        } else if (status != null) {
-            responses = postService.getPostsByStatus(status);
+            responses = postService.getPostsByAuthorAndStatus(request.author(), request.status());
+        } else if (request.author() != null && !request.author().isBlank()) {
+            responses = postService.getPostsByAuthor(request.author());
+        } else if (request.status() != null) {
+            responses = postService.getPostsByStatus(request.status());
         } else {
             responses = postService.getAllPosts();
         }
