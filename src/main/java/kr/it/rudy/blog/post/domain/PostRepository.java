@@ -1,10 +1,10 @@
 package kr.it.rudy.blog.post.domain;
 
-import kr.it.rudy.blog.category.domain.CategoryId;
-import kr.it.rudy.blog.tag.domain.TagId;
-import org.springframework.data.domain.Sort;
+import kr.it.rudy.blog.post.infrastructure.persistence.PostJpaEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository {
@@ -14,17 +14,7 @@ public interface PostRepository {
 
     Optional<Post> findById(PostId id);
 
-    List<Post> findAll(Sort title);
-
-    List<Post> findByStatus(PostStatus status);
-
-    List<Post> findByAuthor(String author);
-
-    List<Post> findByAuthorAndStatus(String author, PostStatus status);
-
-    List<Post> findByCategoryId(CategoryId categoryId);
-
-    List<Post> findByTagId(TagId tagId);
+    Page<Post> findAll(Specification<PostJpaEntity> spec, Pageable pageable);
 
     void delete(PostId id);
 

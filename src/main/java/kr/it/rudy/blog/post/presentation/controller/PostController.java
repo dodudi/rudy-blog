@@ -7,11 +7,11 @@ import kr.it.rudy.blog.post.application.dto.SearchPostRequest;
 import kr.it.rudy.blog.post.application.dto.UpdatePostRequest;
 import kr.it.rudy.blog.post.application.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * Post REST Controller
@@ -36,24 +36,11 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts(
-            @ModelAttribute SearchPostRequest request
+    public ResponseEntity<Page<PostResponse>> searchPosts(
+            @ModelAttribute SearchPostRequest request,
+            Pageable pageable
     ) {
-        List<PostResponse> responses;
-        if (request.categorySlug() != null && !request.categorySlug().isBlank()) {
-            responses = postService.getPostsByCategorySlug(request.categorySlug());
-        } else if (request.tagSlug() != null && !request.tagSlug().isBlank()) {
-            responses = postService.getPostsByTagSlug(request.tagSlug());
-        } else if (request.author() != null && !request.author().isBlank() && request.status() != null) {
-            // author와 status 둘 다 있는 경우
-            responses = postService.getPostsByAuthorAndStatus(request.author(), request.status());
-        } else if (request.author() != null && !request.author().isBlank()) {
-            responses = postService.getPostsByAuthor(request.author());
-        } else if (request.status() != null) {
-            responses = postService.getPostsByStatus(request.status());
-        } else {
-            responses = postService.getAllPosts();
-        }
+        Page<PostResponse> responses = postService.searchPosts(request, pageable);
         return ResponseEntity.ok(responses);
     }
 

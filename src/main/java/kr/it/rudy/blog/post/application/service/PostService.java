@@ -6,17 +6,22 @@ import kr.it.rudy.blog.category.domain.CategoryId;
 import kr.it.rudy.blog.category.domain.CategoryRepository;
 import kr.it.rudy.blog.post.application.dto.CreatePostRequest;
 import kr.it.rudy.blog.post.application.dto.PostResponse;
+import kr.it.rudy.blog.post.application.dto.SearchPostRequest;
 import kr.it.rudy.blog.post.application.dto.UpdatePostRequest;
 import kr.it.rudy.blog.post.domain.Post;
 import kr.it.rudy.blog.post.domain.PostId;
 import kr.it.rudy.blog.post.domain.PostRepository;
 import kr.it.rudy.blog.post.domain.PostStatus;
+import kr.it.rudy.blog.post.infrastructure.persistence.PostJpaEntity;
+import kr.it.rudy.blog.post.infrastructure.persistence.PostSpecs;
 import kr.it.rudy.blog.tag.application.dto.TagResponse;
 import kr.it.rudy.blog.tag.domain.Tag;
 import kr.it.rudy.blog.tag.domain.TagId;
 import kr.it.rudy.blog.tag.domain.TagRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -139,56 +144,31 @@ public class PostService {
         return toPostResponse(post);
     }
 
-    public List<PostResponse> getAllPosts() {
-        return postRepository.findAll(Sort.by("title")).stream()
-                .map(this::toPostResponse)
-                .collect(Collectors.toList());
+    public Page<PostResponse> searchPosts(SearchPostRequest request, Pageable pageable) {
+        SearchPostRequest resolvedRequest = resolveSlugToId(request);
+        Specification<PostJpaEntity> spec = PostSpecs.searchWith(resolvedRequest);
+        return postRepository.findAll(spec, pageable)
+                .map(this::toPostResponse);
     }
 
-    public List<PostResponse> getPostsByStatus(PostStatus status) {
-        return postRepository.findByStatus(status).stream()
-                .map(this::toPostResponse)
-                .collect(Collectors.toList());
-    }
+    private SearchPostRequest resolveSlugToId(SearchPostRequest request) {
+        SearchPostRequest result = request;
 
-    public List<PostResponse> getPostsByAuthor(String author) {
-        return postRepository.findByAuthor(author).stream()
-                .map(this::toPostResponse)
-                .collect(Collectors.toList());
-    }
+        if (request.categorySlug() != null && !request.categorySlug().isBlank() &&
+            (request.categoryId() == null || request.categoryId().isBlank())) {
+            Category category = categoryRepository.findBySlug(request.categorySlug())
+                    .orElseThrow(() -> new IllegalArgumentException("Category not found with slug: " + request.categorySlug()));
+            result = result.withCategoryId(category.getId().getValue());
+        }
 
-    public List<PostResponse> getPostsByAuthorAndStatus(String author, PostStatus status) {
-        return postRepository.findByAuthorAndStatus(author, status).stream()
-                .map(this::toPostResponse)
-                .collect(Collectors.toList());
-    }
+        if (request.tagSlug() != null && !request.tagSlug().isBlank() &&
+            (request.tagId() == null || request.tagId().isBlank())) {
+            Tag tag = tagRepository.findBySlug(request.tagSlug())
+                    .orElseThrow(() -> new IllegalArgumentException("Tag not found with slug: " + request.tagSlug()));
+            result = result.withTagId(tag.getId().getValue());
+        }
 
-    public List<PostResponse> getPostsByCategoryId(String categoryId) {
-        return postRepository.findByCategoryId(CategoryId.of(categoryId)).stream()
-                .map(this::toPostResponse)
-                .collect(Collectors.toList());
-    }
-
-    public List<PostResponse> getPostsByCategorySlug(String slug) {
-        Category category = categoryRepository.findBySlug(slug)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found with slug: " + slug));
-        return postRepository.findByCategoryId(category.getId()).stream()
-                .map(this::toPostResponse)
-                .collect(Collectors.toList());
-    }
-
-    public List<PostResponse> getPostsByTagId(String tagId) {
-        return postRepository.findByTagId(TagId.of(tagId)).stream()
-                .map(this::toPostResponse)
-                .collect(Collectors.toList());
-    }
-
-    public List<PostResponse> getPostsByTagSlug(String slug) {
-        Tag tag = tagRepository.findBySlug(slug)
-                .orElseThrow(() -> new IllegalArgumentException("Tag not found with slug: " + slug));
-        return postRepository.findByTagId(tag.getId()).stream()
-                .map(this::toPostResponse)
-                .collect(Collectors.toList());
+        return result;
     }
 
     private PostResponse toPostResponse(Post post) {

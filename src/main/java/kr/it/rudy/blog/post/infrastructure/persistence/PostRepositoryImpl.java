@@ -1,17 +1,14 @@
 package kr.it.rudy.blog.post.infrastructure.persistence;
 
-import kr.it.rudy.blog.category.domain.CategoryId;
 import kr.it.rudy.blog.post.domain.Post;
 import kr.it.rudy.blog.post.domain.PostId;
 import kr.it.rudy.blog.post.domain.PostRepository;
-import kr.it.rudy.blog.post.domain.PostStatus;
-import kr.it.rudy.blog.tag.domain.TagId;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class PostRepositoryImpl implements PostRepository {
@@ -44,45 +41,9 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public List<Post> findAll(Sort title) {
-        return jpaRepository.findAll().stream()
-                .map(PostJpaEntity::toDomain)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Post> findByStatus(PostStatus status) {
-        return jpaRepository.findByStatus(status).stream()
-                .map(PostJpaEntity::toDomain)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Post> findByAuthor(String author) {
-        return jpaRepository.findByAuthor(author).stream()
-                .map(PostJpaEntity::toDomain)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Post> findByAuthorAndStatus(String author, PostStatus status) {
-        return jpaRepository.findByAuthorAndStatus(author, status).stream()
-                .map(PostJpaEntity::toDomain)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Post> findByCategoryId(CategoryId categoryId) {
-        return jpaRepository.findByCategoryId(categoryId.getValue()).stream()
-                .map(PostJpaEntity::toDomain)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Post> findByTagId(TagId tagId) {
-        return jpaRepository.findByTagId(tagId.getValue()).stream()
-                .map(PostJpaEntity::toDomain)
-                .collect(Collectors.toList());
+    public Page<Post> findAll(Specification<PostJpaEntity> spec, Pageable pageable) {
+        return jpaRepository.findAll(spec, pageable)
+                .map(PostJpaEntity::toDomain);
     }
 
     @Override
