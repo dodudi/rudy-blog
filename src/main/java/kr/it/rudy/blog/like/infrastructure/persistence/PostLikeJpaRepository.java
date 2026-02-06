@@ -8,8 +8,6 @@ public interface PostLikeJpaRepository extends JpaRepository<PostLikeJpaEntity, 
 
     Optional<PostLikeJpaEntity> findByPostIdAndUserId(String postId, String userId);
 
-    void deleteByPostId(String postId);
-
     long countByPostId(String postId);
 
     boolean existsByPostIdAndUserId(String postId, String userId);

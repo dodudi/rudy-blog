@@ -11,7 +11,5 @@ public interface PostBookmarkJpaRepository extends JpaRepository<PostBookmarkJpa
 
     List<PostBookmarkJpaEntity> findByUserIdOrderByCreatedDtDesc(String userId);
 
-    void deleteByPostId(String postId);
-
     boolean existsByPostIdAndUserId(String postId, String userId);
 }

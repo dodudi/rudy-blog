@@ -81,11 +81,6 @@ public class Post {
         );
     }
 
-    public static Post reconstitute(PostId id, String title, String content, String author,
-                                    PostStatus status, Instant createdAt, Instant updatedAt) {
-        return new Post(id, title, content, null, author, status, null, new HashSet<>(), createdAt, updatedAt);
-    }
-
     public static Post reconstitute(PostId id, String title, String content, String summary, String author,
                                     PostStatus status, CategoryId categoryId, Set<TagId> tagIds,
                                     Instant createdAt, Instant updatedAt) {

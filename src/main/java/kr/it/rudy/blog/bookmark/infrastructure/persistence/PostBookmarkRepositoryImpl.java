@@ -5,7 +5,6 @@ import kr.it.rudy.blog.bookmark.domain.PostBookmarkId;
 import kr.it.rudy.blog.bookmark.domain.PostBookmarkRepository;
 import kr.it.rudy.blog.post.domain.PostId;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,12 +42,6 @@ public class PostBookmarkRepositoryImpl implements PostBookmarkRepository {
     @Override
     public void delete(PostBookmarkId id) {
         jpaRepository.deleteById(id.getValue());
-    }
-
-    @Override
-    @Transactional
-    public void deleteByPostId(PostId postId) {
-        jpaRepository.deleteByPostId(postId.getValue());
     }
 
     @Override

@@ -5,7 +5,6 @@ import kr.it.rudy.blog.comment.domain.CommentId;
 import kr.it.rudy.blog.comment.domain.CommentRepository;
 import kr.it.rudy.blog.post.domain.PostId;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,16 +57,5 @@ public class CommentRepositoryImpl implements CommentRepository {
     @Override
     public void delete(CommentId id) {
         jpaRepository.deleteById(id.getValue());
-    }
-
-    @Override
-    @Transactional
-    public void deleteByPostId(PostId postId) {
-        jpaRepository.deleteByPostId(postId.getValue());
-    }
-
-    @Override
-    public boolean existsById(CommentId id) {
-        return jpaRepository.existsById(id.getValue());
     }
 }

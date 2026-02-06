@@ -11,8 +11,6 @@ public interface PostLikeRepository {
 
     void delete(PostLikeId id);
 
-    void deleteByPostId(PostId postId);
-
     long countByPostId(PostId postId);
 
     boolean existsByPostIdAndUserId(PostId postId, String userId);

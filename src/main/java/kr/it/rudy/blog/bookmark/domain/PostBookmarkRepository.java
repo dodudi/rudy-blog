@@ -14,7 +14,5 @@ public interface PostBookmarkRepository {
 
     void delete(PostBookmarkId id);
 
-    void deleteByPostId(PostId postId);
-
     boolean existsByPostIdAndUserId(PostId postId, String userId);
 }

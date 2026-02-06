@@ -5,7 +5,6 @@ import kr.it.rudy.blog.like.domain.PostLikeId;
 import kr.it.rudy.blog.like.domain.PostLikeRepository;
 import kr.it.rudy.blog.post.domain.PostId;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -34,12 +33,6 @@ public class PostLikeRepositoryImpl implements PostLikeRepository {
     @Override
     public void delete(PostLikeId id) {
         jpaRepository.deleteById(id.getValue());
-    }
-
-    @Override
-    @Transactional
-    public void deleteByPostId(PostId postId) {
-        jpaRepository.deleteByPostId(postId.getValue());
     }
 
     @Override

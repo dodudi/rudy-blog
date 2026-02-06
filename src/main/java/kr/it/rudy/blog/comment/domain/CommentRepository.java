@@ -17,8 +17,4 @@ public interface CommentRepository {
     List<Comment> findByParentId(CommentId parentId);
 
     void delete(CommentId id);
-
-    void deleteByPostId(PostId postId);
-
-    boolean existsById(CommentId id);
 }

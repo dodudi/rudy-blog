@@ -9,6 +9,4 @@ public interface CommentJpaRepository extends JpaRepository<CommentJpaEntity, St
     List<CommentJpaEntity> findByPostIdOrderByCreatedDtAsc(String postId);
 
     List<CommentJpaEntity> findByParentId(String parentId);
-
-    void deleteByPostId(String postId);
 }
