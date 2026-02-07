@@ -27,11 +27,15 @@ public class CategoryJpaEntity extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
-    private CategoryJpaEntity(String id, String name, String slug, String description) {
+    @Column(name = "owner_id", nullable = false)
+    private String ownerId;
+
+    private CategoryJpaEntity(String id, String name, String slug, String description, String ownerId) {
         this.id = id;
         this.name = name;
         this.slug = slug;
         this.description = description;
+        this.ownerId = ownerId;
     }
 
     public static CategoryJpaEntity fromDomain(Category category) {
@@ -39,7 +43,8 @@ public class CategoryJpaEntity extends BaseEntity {
                 category.getId().getValue(),
                 category.getName(),
                 category.getSlug(),
-                category.getDescription()
+                category.getDescription(),
+                category.getOwnerId()
         );
     }
 
@@ -49,6 +54,7 @@ public class CategoryJpaEntity extends BaseEntity {
                 this.name,
                 this.slug,
                 this.description,
+                this.ownerId,
                 this.getCreatedDt(),
                 this.getUpdatedDt()
         );

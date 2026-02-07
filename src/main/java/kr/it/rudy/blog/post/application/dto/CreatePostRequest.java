@@ -26,6 +26,8 @@ public record CreatePostRequest(
 
     Set<String> tagIds,
 
-    Boolean publish
+    Boolean publish,
+
+    Boolean pinned
 ) {
 }

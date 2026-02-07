@@ -8,6 +8,8 @@ import kr.it.rudy.blog.category.application.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +25,12 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
-        CategoryResponse response = categoryService.createCategory(request);
+    public ResponseEntity<CategoryResponse> createCategory(
+            @Valid @RequestBody CreateCategoryRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String userId = jwt.getSubject();
+        CategoryResponse response = categoryService.createCategory(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -49,15 +55,21 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable String id,
-            @Valid @RequestBody UpdateCategoryRequest request
+            @Valid @RequestBody UpdateCategoryRequest request,
+            @AuthenticationPrincipal Jwt jwt
     ) {
-        CategoryResponse response = categoryService.updateCategory(id, request);
+        String userId = jwt.getSubject();
+        CategoryResponse response = categoryService.updateCategory(id, request, userId);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable String id) {
-        categoryService.deleteCategory(id);
+    public ResponseEntity<Void> deleteCategory(
+            @PathVariable String id,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String userId = jwt.getSubject();
+        categoryService.deleteCategory(id, userId);
         return ResponseEntity.noContent().build();
     }
 }

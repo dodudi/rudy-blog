@@ -40,12 +40,22 @@ public class PostService {
     private final TagRepository tagRepository;
 
     @Transactional
-    public PostResponse createPost(CreatePostRequest request) {
+    public PostResponse createPost(CreatePostRequest request, String userId) {
         CategoryId categoryId = null;
+        Category category = null;
         if (request.categoryId() != null && !request.categoryId().isBlank()) {
             categoryId = CategoryId.of(request.categoryId());
-            if (!categoryRepository.existsById(categoryId)) {
-                throw new IllegalArgumentException("Category not found: " + request.categoryId());
+            category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new IllegalArgumentException("Category not found: " + request.categoryId()));
+        }
+
+        // pinned=true일 때 카테고리 owner 검증
+        if (Boolean.TRUE.equals(request.pinned())) {
+            if (category == null) {
+                throw new IllegalArgumentException("Cannot pin a post without a category");
+            }
+            if (!category.isOwner(userId)) {
+                throw new SecurityException("Only the category owner can pin posts");
             }
         }
 
@@ -70,12 +80,17 @@ public class PostService {
             post.publish();
         }
 
+        // pinned 플래그 설정
+        if (Boolean.TRUE.equals(request.pinned())) {
+            post.updatePinned(true);
+        }
+
         Post saved = postRepository.save(post);
         return toPostResponse(saved);
     }
 
     @Transactional
-    public PostResponse updatePost(String id, UpdatePostRequest request) {
+    public PostResponse updatePost(String id, UpdatePostRequest request, String userId) {
         Post post = postRepository.findById(PostId.of(id))
                 .orElseThrow(() -> new IllegalArgumentException("Post not found: " + id));
 
@@ -83,11 +98,11 @@ public class PostService {
         post.updateContent(request.content());
         post.updateSummary(request.summary());
 
+        Category category = null;
         if (request.categoryId() != null && !request.categoryId().isBlank()) {
             CategoryId categoryId = CategoryId.of(request.categoryId());
-            if (!categoryRepository.existsById(categoryId)) {
-                throw new IllegalArgumentException("Category not found: " + request.categoryId());
-            }
+            category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new IllegalArgumentException("Category not found: " + request.categoryId()));
             post.updateCategory(categoryId);
         } else {
             post.updateCategory(null);
@@ -105,6 +120,19 @@ public class PostService {
             post.publish();
         } else if (Boolean.FALSE.equals(request.publish()) && post.getStatus() == PostStatus.PUBLISHED) {
             post.unpublish();
+        }
+
+        // pinned 플래그 설정 - 변경 시 카테고리 owner 검증
+        if (request.pinned() != null && request.pinned() != post.isPinned()) {
+            if (request.pinned()) {
+                if (category == null) {
+                    throw new IllegalArgumentException("Cannot pin a post without a category");
+                }
+                if (!category.isOwner(userId)) {
+                    throw new SecurityException("Only the category owner can pin posts");
+                }
+            }
+            post.updatePinned(request.pinned());
         }
 
         Post updated = postRepository.update(post);

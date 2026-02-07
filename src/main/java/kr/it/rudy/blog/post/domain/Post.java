@@ -21,13 +21,14 @@ public class Post {
     private String summary;
     private final String author;
     private PostStatus status;
+    private boolean pinned;
     private CategoryId categoryId;
     private Set<TagId> tagIds;
     private Instant createdDt;
     private Instant updatedDt;
 
     private Post(PostId id, String title, String content, String summary, String author,
-                 PostStatus status, CategoryId categoryId, Set<TagId> tagIds,
+                 PostStatus status, boolean pinned, CategoryId categoryId, Set<TagId> tagIds,
                  Instant createdDt, Instant updatedDt) {
         this.id = id;
         this.title = title;
@@ -35,6 +36,7 @@ public class Post {
         this.summary = summary;
         this.author = author;
         this.status = status;
+        this.pinned = pinned;
         this.categoryId = categoryId;
         this.tagIds = tagIds != null ? new HashSet<>(tagIds) : new HashSet<>();
         this.createdDt = createdDt;
@@ -53,6 +55,7 @@ public class Post {
                 null,
                 author,
                 PostStatus.DRAFT,
+                false,
                 null,
                 new HashSet<>(),
                 null,
@@ -74,6 +77,7 @@ public class Post {
                 summary,
                 author,
                 PostStatus.DRAFT,
+                false,
                 categoryId,
                 tagIds,
                 null,
@@ -82,9 +86,9 @@ public class Post {
     }
 
     public static Post reconstitute(PostId id, String title, String content, String summary, String author,
-                                    PostStatus status, CategoryId categoryId, Set<TagId> tagIds,
+                                    PostStatus status, boolean pinned, CategoryId categoryId, Set<TagId> tagIds,
                                     Instant createdAt, Instant updatedAt) {
-        return new Post(id, title, content, summary, author, status, categoryId, tagIds, createdAt, updatedAt);
+        return new Post(id, title, content, summary, author, status, pinned, categoryId, tagIds, createdAt, updatedAt);
     }
 
     public void updateTitle(String title) {
@@ -108,6 +112,10 @@ public class Post {
 
     public void updateTags(Set<TagId> tagIds) {
         this.tagIds = tagIds != null ? new HashSet<>(tagIds) : new HashSet<>();
+    }
+
+    public void updatePinned(boolean pinned) {
+        this.pinned = pinned;
     }
 
     public Set<TagId> getTagIds() {

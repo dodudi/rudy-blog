@@ -14,36 +14,44 @@ public class Category {
     private String name;
     private String slug;
     private String description;
+    private String ownerId;
     private Instant createdAt;
     private Instant updatedAt;
 
     private Category(CategoryId id, String name, String slug, String description,
-                     Instant createdAt, Instant updatedAt) {
+                     String ownerId, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.name = name;
         this.slug = slug;
         this.description = description;
+        this.ownerId = ownerId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
-    public static Category create(String name, String slug, String description) {
+    public static Category create(String name, String slug, String description, String ownerId) {
         validateName(name);
         validateSlug(slug);
+        Objects.requireNonNull(ownerId, "Owner ID cannot be null");
 
         return new Category(
                 CategoryId.generate(),
                 name,
                 slug,
                 description,
+                ownerId,
                 null,
                 null
         );
     }
 
     public static Category reconstitute(CategoryId id, String name, String slug, String description,
-                                         Instant createdAt, Instant updatedAt) {
-        return new Category(id, name, slug, description, createdAt, updatedAt);
+                                         String ownerId, Instant createdAt, Instant updatedAt) {
+        return new Category(id, name, slug, description, ownerId, createdAt, updatedAt);
+    }
+
+    public boolean isOwner(String userId) {
+        return ownerId != null && ownerId.equals(userId);
     }
 
     public void updateName(String name) {

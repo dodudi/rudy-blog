@@ -66,6 +66,15 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("METHOD_NOT_ALLOWED", "HTTP method not supported: " + e.getMethod()));
     }
 
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<ApiResponse<Void>> handleSecurityException(SecurityException e) {
+        log.warn("Security exception: {}", e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error("FORBIDDEN", e.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error("Unexpected Exception: {}", e.getMessage(), e);

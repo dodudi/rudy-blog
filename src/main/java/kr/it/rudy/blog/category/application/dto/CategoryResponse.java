@@ -12,6 +12,7 @@ public record CategoryResponse(
         String name,
         String slug,
         String description,
+        String ownerId,
         Instant createdAt,
         Instant updatedAt
 ) {
@@ -21,6 +22,7 @@ public record CategoryResponse(
                 category.getName(),
                 category.getSlug(),
                 category.getDescription(),
+                category.getOwnerId(),
                 category.getCreatedAt(),
                 category.getUpdatedAt()
         );

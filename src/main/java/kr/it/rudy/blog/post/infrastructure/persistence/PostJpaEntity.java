@@ -41,6 +41,9 @@ public class PostJpaEntity extends BaseEntity {
     @Column(name = "status", nullable = false)
     private PostStatus status;
 
+    @Column(name = "pinned", nullable = false)
+    private boolean pinned = false;
+
     @Column(name = "category_id")
     private String categoryId;
 
@@ -50,13 +53,14 @@ public class PostJpaEntity extends BaseEntity {
     private Set<String> tagIds = new HashSet<>();
 
     private PostJpaEntity(String id, String title, String content, String summary, String author,
-                          PostStatus status, String categoryId, Set<String> tagIds) {
+                          PostStatus status, boolean pinned, String categoryId, Set<String> tagIds) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.summary = summary;
         this.author = author;
         this.status = status;
+        this.pinned = pinned;
         this.categoryId = categoryId;
         this.tagIds = tagIds != null ? new HashSet<>(tagIds) : new HashSet<>();
     }
@@ -73,6 +77,7 @@ public class PostJpaEntity extends BaseEntity {
                 post.getSummary(),
                 post.getAuthor(),
                 post.getStatus(),
+                post.isPinned(),
                 post.getCategoryId() != null ? post.getCategoryId().getValue() : null,
                 tagIdStrings
         );
@@ -90,6 +95,7 @@ public class PostJpaEntity extends BaseEntity {
                 this.summary,
                 this.author,
                 this.status,
+                this.pinned,
                 this.categoryId != null ? CategoryId.of(this.categoryId) : null,
                 tagIdSet,
                 this.getCreatedDt(),

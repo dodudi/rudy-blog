@@ -23,6 +23,8 @@ public record UpdatePostRequest(
 
     Set<String> tagIds,
 
-    Boolean publish
+    Boolean publish,
+
+    Boolean pinned
 ) {
 }

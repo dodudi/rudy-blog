@@ -21,7 +21,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public CategoryResponse createCategory(CreateCategoryRequest request) {
+    public CategoryResponse createCategory(CreateCategoryRequest request, String ownerId) {
         if (categoryRepository.existsBySlug(request.slug())) {
             throw new IllegalArgumentException("Category with slug '" + request.slug() + "' already exists");
         }
@@ -29,16 +29,22 @@ public class CategoryService {
         Category category = Category.create(
                 request.name(),
                 request.slug(),
-                request.description()
+                request.description(),
+                ownerId
         );
         Category saved = categoryRepository.save(category);
         return CategoryResponse.from(saved);
     }
 
     @Transactional
-    public CategoryResponse updateCategory(String id, UpdateCategoryRequest request) {
+    public CategoryResponse updateCategory(String id, UpdateCategoryRequest request, String userId) {
         Category category = categoryRepository.findById(CategoryId.of(id))
                 .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
+
+        // 권한 검증: owner만 수정 가능
+        if (!category.isOwner(userId)) {
+            throw new SecurityException("Only the category owner can update this category");
+        }
 
         // slug 중복 체크 (자기 자신 제외)
         categoryRepository.findBySlug(request.slug())
@@ -56,11 +62,16 @@ public class CategoryService {
     }
 
     @Transactional
-    public void deleteCategory(String id) {
+    public void deleteCategory(String id, String userId) {
         CategoryId categoryId = CategoryId.of(id);
-        if (!categoryRepository.existsById(categoryId)) {
-            throw new IllegalArgumentException("Category not found: " + id);
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
+
+        // 권한 검증: owner만 삭제 가능
+        if (!category.isOwner(userId)) {
+            throw new SecurityException("Only the category owner can delete this category");
         }
+
         categoryRepository.delete(categoryId);
     }
 
