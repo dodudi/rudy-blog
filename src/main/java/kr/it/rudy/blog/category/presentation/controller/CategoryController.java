@@ -69,7 +69,9 @@ public class CategoryController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         String userId = jwt.getSubject();
-        categoryService.deleteCategory(id, userId);
+        List<String> roles = jwt.getClaimAsStringList("roles");
+        boolean isAdmin = roles != null && roles.contains("ROLE_ADMIN");
+        categoryService.deleteCategory(id, userId, isAdmin);
         return ResponseEntity.noContent().build();
     }
 }

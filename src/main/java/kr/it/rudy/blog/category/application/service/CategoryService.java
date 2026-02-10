@@ -62,14 +62,14 @@ public class CategoryService {
     }
 
     @Transactional
-    public void deleteCategory(String id, String userId) {
+    public void deleteCategory(String id, String userId, boolean isAdmin) {
         CategoryId categoryId = CategoryId.of(id);
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
 
-        // 권한 검증: owner만 삭제 가능
-        if (!category.isOwner(userId)) {
-            throw new SecurityException("Only the category owner can delete this category");
+        // 권한 검증: admin이거나 owner만 삭제 가능
+        if (!isAdmin && !category.isOwner(userId)) {
+            throw new SecurityException("Only the category owner or admin can delete this category");
         }
 
         categoryRepository.delete(categoryId);
