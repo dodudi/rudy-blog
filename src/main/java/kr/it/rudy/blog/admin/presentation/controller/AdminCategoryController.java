@@ -1,10 +1,10 @@
 package kr.it.rudy.blog.admin.presentation.controller;
 
 import jakarta.validation.Valid;
+import kr.it.rudy.blog.admin.application.service.AdminCategoryService;
 import kr.it.rudy.blog.category.application.dto.CategoryResponse;
 import kr.it.rudy.blog.category.application.dto.CreateCategoryRequest;
 import kr.it.rudy.blog.category.application.dto.UpdateCategoryRequest;
-import kr.it.rudy.blog.category.application.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +19,11 @@ import java.util.List;
 @RequestMapping("/api/admin/categories")
 public class AdminCategoryController {
 
-    private final CategoryService categoryService;
+    private final AdminCategoryService adminCategoryService;
 
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> listCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
+        return ResponseEntity.ok(adminCategoryService.getAllCategories());
     }
 
     @PostMapping
@@ -32,7 +32,7 @@ public class AdminCategoryController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         String userId = jwt.getSubject();
-        CategoryResponse response = categoryService.createCategory(request, userId);
+        CategoryResponse response = adminCategoryService.createCategory(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -41,13 +41,13 @@ public class AdminCategoryController {
             @PathVariable String id,
             @Valid @RequestBody UpdateCategoryRequest request
     ) {
-        CategoryResponse response = categoryService.updateCategoryAsAdmin(id, request);
+        CategoryResponse response = adminCategoryService.updateCategory(id, request);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable String id) {
-        categoryService.deleteCategoryAsAdmin(id);
+        adminCategoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
 }

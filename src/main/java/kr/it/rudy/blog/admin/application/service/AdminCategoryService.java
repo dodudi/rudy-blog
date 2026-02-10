@@ -1,4 +1,4 @@
-package kr.it.rudy.blog.category.application.service;
+package kr.it.rudy.blog.admin.application.service;
 
 import kr.it.rudy.blog.category.application.dto.CategoryResponse;
 import kr.it.rudy.blog.category.application.dto.CreateCategoryRequest;
@@ -16,9 +16,15 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CategoryService {
+public class AdminCategoryService {
 
     private final CategoryRepository categoryRepository;
+
+    public List<CategoryResponse> getAllCategories() {
+        return categoryRepository.findAll().stream()
+                .map(CategoryResponse::from)
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public CategoryResponse createCategory(CreateCategoryRequest request, String ownerId) {
@@ -37,16 +43,10 @@ public class CategoryService {
     }
 
     @Transactional
-    public CategoryResponse updateCategory(String id, UpdateCategoryRequest request, String userId) {
+    public CategoryResponse updateCategory(String id, UpdateCategoryRequest request) {
         Category category = categoryRepository.findById(CategoryId.of(id))
                 .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
 
-        // 권한 검증: owner만 수정 가능
-        if (!category.isOwner(userId)) {
-            throw new SecurityException("Only the category owner can update this category");
-        }
-
-        // slug 중복 체크 (자기 자신 제외)
         categoryRepository.findBySlug(request.slug())
                 .filter(existing -> !existing.getId().equals(category.getId()))
                 .ifPresent(existing -> {
@@ -62,33 +62,11 @@ public class CategoryService {
     }
 
     @Transactional
-    public void deleteCategory(String id, String userId) {
+    public void deleteCategory(String id) {
         CategoryId categoryId = CategoryId.of(id);
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
-
-        if (!category.isOwner(userId)) {
-            throw new SecurityException("Only the category owner can delete this category");
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new IllegalArgumentException("Category not found: " + id);
         }
-
         categoryRepository.delete(categoryId);
-    }
-
-    public CategoryResponse getCategory(String id) {
-        Category category = categoryRepository.findById(CategoryId.of(id))
-                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
-        return CategoryResponse.from(category);
-    }
-
-    public CategoryResponse getCategoryBySlug(String slug) {
-        Category category = categoryRepository.findBySlug(slug)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found with slug: " + slug));
-        return CategoryResponse.from(category);
-    }
-
-    public List<CategoryResponse> getAllCategories() {
-        return categoryRepository.findAll().stream()
-                .map(CategoryResponse::from)
-                .collect(Collectors.toList());
     }
 }
