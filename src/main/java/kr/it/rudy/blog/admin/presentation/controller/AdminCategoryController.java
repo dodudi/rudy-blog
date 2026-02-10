@@ -1,4 +1,4 @@
-package kr.it.rudy.blog.category.presentation.controller;
+package kr.it.rudy.blog.admin.presentation.controller;
 
 import jakarta.validation.Valid;
 import kr.it.rudy.blog.category.application.dto.CategoryResponse;
@@ -14,15 +14,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Category REST Controller
- */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/categories")
-public class CategoryController {
+@RequestMapping("/api/admin/categories")
+public class AdminCategoryController {
 
     private final CategoryService categoryService;
+
+    @GetMapping
+    public ResponseEntity<List<CategoryResponse>> listCategories() {
+        return ResponseEntity.ok(categoryService.getAllCategories());
+    }
 
     @PostMapping
     public ResponseEntity<CategoryResponse> createCategory(
@@ -34,42 +36,18 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getCategory(@PathVariable String id) {
-        CategoryResponse response = categoryService.getCategory(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/slug/{slug}")
-    public ResponseEntity<CategoryResponse> getCategoryBySlug(@PathVariable String slug) {
-        CategoryResponse response = categoryService.getCategoryBySlug(slug);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
-        List<CategoryResponse> responses = categoryService.getAllCategories();
-        return ResponseEntity.ok(responses);
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable String id,
-            @Valid @RequestBody UpdateCategoryRequest request,
-            @AuthenticationPrincipal Jwt jwt
+            @Valid @RequestBody UpdateCategoryRequest request
     ) {
-        String userId = jwt.getSubject();
-        CategoryResponse response = categoryService.updateCategory(id, request, userId);
+        CategoryResponse response = categoryService.updateCategoryAsAdmin(id, request);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(
-            @PathVariable String id,
-            @AuthenticationPrincipal Jwt jwt
-    ) {
-        String userId = jwt.getSubject();
-        categoryService.deleteCategory(id, userId);
+    public ResponseEntity<Void> deleteCategory(@PathVariable String id) {
+        categoryService.deleteCategoryAsAdmin(id);
         return ResponseEntity.noContent().build();
     }
 }

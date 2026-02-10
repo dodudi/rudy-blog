@@ -62,17 +62,44 @@ public class CategoryService {
     }
 
     @Transactional
-    public void deleteCategory(String id, String userId, boolean isAdmin) {
+    public void deleteCategory(String id, String userId) {
         CategoryId categoryId = CategoryId.of(id);
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
 
-        // 권한 검증: admin이거나 owner만 삭제 가능
-        if (!isAdmin && !category.isOwner(userId)) {
-            throw new SecurityException("Only the category owner or admin can delete this category");
+        if (!category.isOwner(userId)) {
+            throw new SecurityException("Only the category owner can delete this category");
         }
 
         categoryRepository.delete(categoryId);
+    }
+
+    @Transactional
+    public void deleteCategoryAsAdmin(String id) {
+        CategoryId categoryId = CategoryId.of(id);
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new IllegalArgumentException("Category not found: " + id);
+        }
+        categoryRepository.delete(categoryId);
+    }
+
+    @Transactional
+    public CategoryResponse updateCategoryAsAdmin(String id, UpdateCategoryRequest request) {
+        Category category = categoryRepository.findById(CategoryId.of(id))
+                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
+
+        categoryRepository.findBySlug(request.slug())
+                .filter(existing -> !existing.getId().equals(category.getId()))
+                .ifPresent(existing -> {
+                    throw new IllegalArgumentException("Category with slug '" + request.slug() + "' already exists");
+                });
+
+        category.updateName(request.name());
+        category.updateSlug(request.slug());
+        category.updateDescription(request.description());
+
+        Category updated = categoryRepository.save(category);
+        return CategoryResponse.from(updated);
     }
 
     public CategoryResponse getCategory(String id) {
